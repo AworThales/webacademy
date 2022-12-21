@@ -1,0 +1,204 @@
+<?php include("path.php"); ?>
+<?php include(ROOT_PATH . "/app/controllers/topics.php"); 
+
+$posts = array();
+$postsTitle = 'Recent Posts';
+
+if (isset($_GET['t_id'])) {
+   $posts = getPostsByTopicId($_GET['t_id']);
+   $postsTitle = "You searched for posts under '" . $_GET['name'] . "'";
+} else if (isset($_POST['search-term'])) {
+    $postsTitle = "You searched for '" . $_POST['search-term'] . "'";
+   $posts = searchPosts($_POST['search-term']);
+   
+}else {
+    $posts = getPublishedPosts(); 
+    // $paginatedPosts =  getPaginatedPosts();
+    
+}
+
+// if (isset($_GET['page']) && isset($_GET['ajax'])) {
+//     $paginatedPosts =  getPaginatedPosts($_GET['page']);
+//     echo json_encode($paginatedPosts);
+//     exit();
+// }
+
+?>
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home | Webdesk</title>
+    <!--custome css-->
+    <link  href="assets/css/style.css" rel="stylesheet" type ="text/css">
+   
+    <!-- Font Awesone-->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.1/css/all.css">
+    <!--Google Fonts -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Candal|Lora">
+</head>
+<body>
+    <!--navigation bar-->
+    <?php include(ROOT_PATH . "/app/includes/header.php"); ?>
+   
+  <?php include(ROOT_PATH . "/app/includes/messages.php"); ?>
+    
+    <!--PAGE WRAPPER-->
+    <div class="page-wrapper">
+        
+        <!--POST SLIDER-->
+        <div class="post-slider">
+            <h1 class="slider-title">Trending Posts</h1>
+            <i class="fas fa-chevron-left prev"></i>
+            <i class="fas fa-chevron-right next"></i>
+            
+                <!-- post wrapper-->
+            <div class="post-wrapper">  
+                <?php foreach ($posts as $post):  ?>
+                    <div class="post">
+                        <img src="<?php echo BASE_URL . "/assets/images/" . $post['image']; ?>" alt="" class="slider-image">
+                  
+                        <div class="post-info">
+                            <h4><a href="single.php?id=<?php echo $post['id']; ?>"><?php echo $post['title']; ?></a></h4>
+                            <i class="far fa-user"><?php echo $post['username']; ?></i>
+                            &nbsp;
+                            <i class="far fa-calendar"><?php echo date('F j, Y', strtotime($post['created_at'])); ?></i>
+                        </div> 
+                    </div>
+                
+                <?php endforeach; ?>
+
+               
+            </div>
+            <!--// post wrapper-->
+        </div>
+        <!--// POST SLIDER-->
+
+        <!--content-->
+        <div class="content clearfix">
+            <!--main content-->
+            <div class="main-content">
+                <!-- <div class="post-list"> -->
+                    <h1 class="recent-post-title"><?php echo $postsTitle ?></h1>
+                    
+                    <?php foreach ($posts as $post): ?>
+                        <div class="post clearfix">
+                            <img src="<?php echo BASE_URL . "/assets/images/" . $post['image']; ?>" alt="" class="post-image">
+                            <div class="post-preview">
+                                <h2><a href="single.php?id=<?php echo $post['id']; ?>"><?php echo $post['title']; ?></a></h2>
+                                <i class="far fa-user"><?php echo $post['username']; ?></i>
+                                &nbsp;
+                                <i class="far fa-calender"> <?php echo date('F j, Y', strtotime($post['created_at'])); ?></i>
+                                <p class="preview-text">
+                                    <?php echo html_entity_decode(substr($post['body'], 0, 150) . '...'); ?>
+                                </p>
+                                <a href="single.php?id=<?php echo $post['id']; ?>" class="btn read-more">Read More</a>
+                            </div>
+                        </div>
+
+                    <?php endforeach; ?>
+                <!-- </div> -->
+
+               <!-- <div class="pagination-links" style="display: flex; justify-content:center">
+                   <button type="button" class="btn read-more load-more-btn">Load More</button>
+               </div> -->
+
+            </div>
+           <!--//main content --> 
+                <!--SIDEBAR --> 
+            <div class="sidebar">
+                <div class="section search">
+                    <h2 class="section-title">Search</h2>
+                    <form action="index.php" method="post">
+                        <input type="text" name="search-term" class="text-input" placeholder="Search...">
+                    </form>
+                </div>
+
+                <div class="section topics">
+                    <h2 class="section-title">Topics</h2>
+                  
+                    <ul>
+                        <?php foreach ($topics as $key => $topic):  ?>
+                            <li><a href="<?php echo BASE_URL . '/index.php?t_id=' . $topic['id'] . '&name=' . $topic['name']; ?>"><?php echo $topic['name'];  ?></a></li>
+                        <?php endforeach; ?>  
+                    </ul>
+                </div>
+            </div>
+            <!--//SIDEBAR --> 
+        </div>
+        <!--//content -->
+
+    </div>
+
+<!--// page wrapper-->
+
+
+    <!--footer-->
+    <?php include (ROOT_PATH ."/app/includes/footer.php"); ?>
+        <!--// footer-->
+   
+<!--JQUERY-->
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+<!--slick carousel-->
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
+<!--CUSTOM SCRIPT-->
+<script src="assets/js/scripts.js"></script>
+
+<script>
+
+// const loadMoreBtn = document.querySelector('.load-more-btn');
+// const postList = document.querySelector('.post-list');
+// const paginationLinks = document.querySelector('.pagination-links');
+
+// function displayPosts(posts) {
+//     posts.forEach(post => {
+//         let postHtmlString = `
+//             <div class="post clearfix">
+//                 <img src="${post.image}" alt="" class="post-image">
+//                 <div class="post-preview">
+//                     <h2><a href="single.php?id=${post.id}">${post.title}</a></h2>
+//                     <i class="far fa-user">${post.username}</i>
+//                     &nbsp;
+//                     <i class="far fa-calender">${post.created_at}</i>
+//                     <p class="preview-text">
+//                     ${post.body}
+//                     </p>
+                    // <a href="single.php?id=" class="btn read-more">Read More</a>
+//                 </div>
+//             </div>
+//         `;
+
+//         const domParser = new DOMParser();
+//         const doc = domParser.parseFromString(postHtmlString, 'text/html');
+//         const postNode = doc.body.firstChild;
+//         postList.appendChild(postNode);
+//     });
+// }
+
+// let nextPage = 2;
+
+// loadMoreBtn.addEventListener('click', async function(e) {
+//     loadMoreBtn.textContent = 'Loading...';
+//     const response = await fetch(`index.php?page=${nextPage}&ajax=1`);
+//     const data = await response.json();
+
+//     displayPosts(data.posts);
+//     nextPage = data.nextPage;
+// if (!data.nextPage) {
+//     paginationLinks.innerHTML = '<div style ="color: grey;"> No more posts!</div>';
+// } else {
+//     loadMoreBtn.textContent = 'Load more';
+// }
+// });
+
+
+
+</script>
+
+</body>
+</html>
